@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How much should an AI agent be allowed to do?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1C2433;--muted:#5A6477;--line:#D5DAE3;--bg:#F3F5F8;--card:#FFFFFF;--accent:#2B4C8C;--danger:#A33A3A;
+--t1:#2E7D6B;--t2:#6C8A2E;--t3:#B26F14;--t4:#A33A3A;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.6 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+main{max-width:760px;margin:0 auto;padding:36px 20px 72px}
+.org{color:var(--muted);font-size:.9rem;margin:0 0 8px}
+h1,h2{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-weight:600;line-height:1.2;margin:0 0 14px}
+h1{font-size:2rem}
+h2{font-size:1.6rem}
+h3{font-size:1rem;font-weight:600;margin:26px 0 10px}
+p{margin:0 0 14px;max-width:66ch}
+.muted{color:var(--muted)}
+.facts{margin:0 0 20px;padding-left:20px}
+.facts li{margin-bottom:4px}
+.banner{background:#FFF4DE;border:1px solid #E7C27A;color:#6B4406;padding:10px 14px;border-radius:8px;font-size:.9rem;margin-bottom:24px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt:hover{border-color:var(--accent)}
+.check{display:flex;gap:10px;align-items:flex-start;margin:20px 0}
+.check input{width:20px;height:20px;margin-top:3px}
+.part{color:var(--muted);font-size:.95rem;margin:0 0 6px}
+.setting{font-family:"Source Serif 4",Georgia,serif;font-size:1.12rem;margin:0 0 16px}
+.team{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 22px}
+.agent{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.agent b{display:block;font-weight:600}
+.agent span{font-size:.9rem;color:var(--muted)}
+.agent.new{border-style:dashed}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:0 0 20px;font-size:.85rem}
+.legend div{padding:10px 12px;border-right:1px solid var(--line);border-top:4px solid var(--c)}
+.legend div:last-child{border-right:0}
+.legend b{display:block;font-size:.9rem}
+.legend span{color:var(--muted);line-height:1.4;display:block}
+.action{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:0 0 12px;display:grid;grid-template-columns:28px 1fr;gap:4px 12px}
+.action.missing{border-color:var(--danger)}
+.num{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:1.2rem;color:var(--accent);line-height:1.5}
+.who{font-size:.88rem;color:var(--muted);margin:0 0 2px}
+.what{margin:0}
+.undo{margin:2px 0 12px;font-size:.92rem;color:var(--muted)}
+.seg{grid-column:2;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:.88rem;line-height:1.3;color:var(--ink);background:#FAFBFC;border:0;border-right:1px solid var(--line);padding:9px 6px;cursor:pointer;border-top:3px solid transparent}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:#EEF1F6}
+.seg button[aria-pressed="true"]{background:var(--c);border-top-color:var(--c);color:#fff;font-weight:600}
+.defs{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 20px;margin:0 0 20px}
+.defs div{display:grid;grid-template-columns:14px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.defs div:last-child{border-bottom:0}
+.defs i{width:14px;height:14px;border-radius:3px;margin-top:5px;background:var(--c)}
+select{font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px;min-width:280px;max-width:100%}
+input[type=email]{font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:100%;max-width:360px;margin:6px 0 12px}
+.ok{color:var(--t1);font-size:.95rem}
+label.why{display:block;font-size:.95rem;margin-top:14px}
+textarea{width:100%;min-height:64px;font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;resize:vertical;margin-top:6px}
+.nav{display:flex;gap:12px;align-items:center;margin-top:30px;flex-wrap:wrap}
+.primary,.secondary{font:inherit;font-weight:600;border-radius:8px;padding:12px 22px;cursor:pointer}
+.primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.primary:hover{background:#223E73}
+.primary:disabled{opacity:.6;cursor:wait}
+.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.error{color:var(--danger);font-size:.92rem;margin:0}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7FA2E0;outline-offset:2px}
+.json{min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
+@media (max-width:620px){
+  h1{font-size:1.7rem}
+  .team{grid-template-columns:1fr}
+  .legend{grid-template-columns:1fr 1fr}
+  .legend div:nth-child(2){border-right:0}
+  .action{grid-template-columns:22px 1fr;padding:14px}
+  .seg{grid-column:1 / -1;grid-template-columns:1fr 1fr}
+  .seg button:nth-child(2){border-right:0}
+  .seg button:nth-child(-n+2){border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<script>
+/* Settings.
+   ENDPOINT: your Google Apps Script web app URL. Empty = preview, nothing is saved.
+   Add ?test=1 to the page link for your own trial runs. Those responses are saved with is_test = true. */
+const CONFIG = {
+  ENDPOINT: "",
+  AFFILIATION: "Research on Agentic AI Adoption",
+  CONTACT: "[Researcher name, email address]"
+};
+const IS_TEST = new URLSearchParams(location.search).has("test");
+
+const TIERS = [
+  {v:1, label:"Agent acts", desc:"Logged and audited later.", c:"var(--t1)"},
+  {v:2, label:"Agent acts, tells a person", desc:"A person is told at once. They can step in only if the action can be undone.", c:"var(--t2)"},
+  {v:3, label:"Person approves first", desc:"The agent prepares it. A person must approve.", c:"var(--t3)"},
+  {v:4, label:"Person only", desc:"The agent may not do it.", c:"var(--t4)"}
+];
+
+/* 2^4 factorial (reversibility, impact, novelty, track record), split into two half-fractions by I = ABCD.
+   Setting is confounded only with the four-way interaction. Factor codes are stored, never shown. */
+const CONTEXTS = [
+ {id:"A", name:"Company 1: Finance",
+  setting:"A manufacturing company with 2,000 employees.",
+  agents:[{name:"Purchasing agent",age:"2 years",note:"In use 2 years. Few errors.",isNew:false},{name:"Invoice agent",age:"2 years",note:"In use 2 years. Few errors.",isNew:false},
+          {name:"Vendor records agent",age:"3 weeks",note:"In use 3 weeks.",isNew:true},{name:"Payments agent",age:"3 weeks",note:"In use 3 weeks.",isNew:true}],
+  actions:[
+   {id:"A1",agent:"Purchasing agent",rev:"reversible",imp:"low",nov:"routine",rec:"long",text:"Reorders $200 of packing material from the usual supplier. Done every month.",undo:"Can be cancelled free within 48 hours."},
+   {id:"A5",agent:"Purchasing agent",rev:"reversible",imp:"high",nov:"novel",rec:"long",text:"Orders $75,000 of a raw material the company has never bought.",undo:"Can be cancelled free within 7 days."},
+   {id:"A2",agent:"Purchasing agent",rev:"irreversible",imp:"high",nov:"routine",rec:"long",text:"Renews a $150,000 yearly supplier contract on the same terms as the last 3 years.",undo:"Binding once accepted."},
+   {id:"A3",agent:"Invoice agent",rev:"irreversible",imp:"low",nov:"novel",rec:"long",text:"Rejects a $500 invoice for a reason it has not seen before, and emails the vendor.",undo:"The email cannot be recalled."},
+   {id:"A7",agent:"Vendor records agent",rev:"reversible",imp:"low",nov:"novel",rec:"new",text:"Adds a second warehouse address to a vendor record. It has not made this kind of change before.",undo:"Can be undone."},
+   {id:"A4",agent:"Vendor records agent",rev:"irreversible",imp:"low",nov:"routine",rec:"new",text:"Sends the standard welcome email to a new vendor. Done for every new vendor.",undo:"The email cannot be recalled."},
+   {id:"A6",agent:"Payments agent",rev:"reversible",imp:"high",nov:"routine",rec:"new",text:"Schedules the weekly $400,000 payment run to 140 vendors. Same process every week.",undo:"Can be cancelled until 6 pm on payment day."},
+   {id:"A8",agent:"Payments agent",rev:"irreversible",imp:"high",nov:"novel",rec:"new",text:"Sends a $60,000 advance to an overseas supplier. Its first foreign payment.",undo:"Cannot be recalled."}
+  ]},
+ {id:"B", name:"Company 2: Customer operations",
+  setting:"An online retailer with 500,000 customers.",
+  agents:[{name:"Store agent",age:"18 months",note:"In use 18 months. Few errors.",isNew:false},{name:"Customer care agent",age:"2 years",note:"In use 2 years. Few errors.",isNew:false},
+          {name:"Marketing agent",age:"1 month",note:"In use 1 month.",isNew:true},{name:"Refunds agent",age:"1 month",note:"In use 1 month.",isNew:true}],
+  actions:[
+   {id:"B2",agent:"Store agent",rev:"reversible",imp:"high",nov:"routine",rec:"long",text:"Changes prices on 4,000 products for the weekly sale. Done every week.",undo:"Can be rolled back in minutes."},
+   {id:"B4",agent:"Marketing agent",rev:"reversible",imp:"low",nov:"routine",rec:"new",text:"Moves tomorrow's promotional email to next week. A routine change.",undo:"Can be moved back before sending."},
+   {id:"B6",agent:"Marketing agent",rev:"irreversible",imp:"high",nov:"routine",rec:"new",text:"Sends the monthly promotional email to all 500,000 customers, using the usual template.",undo:"Cannot be recalled."},
+   {id:"B8",agent:"Marketing agent",rev:"reversible",imp:"high",nov:"novel",rec:"new",text:"Pauses all online ads ($30,000 a week) after a suspicious click pattern it has not seen before.",undo:"Can be restarted in one step. Sales may drop while paused."},
+   {id:"B1",agent:"Customer care agent",rev:"irreversible",imp:"low",nov:"routine",rec:"long",text:"Tells a customer where their order is. Done many times a day.",undo:"Cannot be unsent."},
+   {id:"B3",agent:"Customer care agent",rev:"reversible",imp:"low",nov:"novel",rec:"long",text:"Changes a delivery address after the parcel has shipped. It has not handled this request before.",undo:"Can be reversed until the parcel reaches the local hub."},
+   {id:"B5",agent:"Customer care agent",rev:"irreversible",imp:"high",nov:"novel",rec:"long",text:"Posts a public reply to a complaint that has gone viral. It has not handled one this large before.",undo:"May be seen and shared even if deleted."},
+   {id:"B7",agent:"Refunds agent",rev:"irreversible",imp:"low",nov:"novel",rec:"new",text:"Refunds $30 for a lost parcel. Its first lost-parcel case.",undo:"Cannot be reversed."}
+  ]}
+];
+
+const BG = [
+ {key:"role",q:"Your role",opts:["Senior leadership","Middle management","IT or engineering","Risk, audit, compliance or legal","Consultant","Academic","Other"]},
+ {key:"experience",q:"Years of work experience",opts:["Under 5","5 to 10","11 to 20","Over 20"]},
+ {key:"industry",q:"Industry",select:true,opts:["IT services and consulting","Software and SaaS","Banking and financial services","Insurance","Manufacturing","Automotive","Healthcare and pharma","Retail and e-commerce","Telecom","Energy and utilities","Logistics and transport","Government and public sector","Education","Media and entertainment","Other"]},
+ {key:"involvement",q:"Have you been involved in decisions to adopt or govern IT or AI systems at work?",opts:["Yes, as a decision maker","Yes, as an advisor or contributor","No"]},
+ {key:"agent_experience",q:"AI agents at your work",opts:["None","Tried or piloted","In production","I build or sell them"]}
+];
+
+const CLOSING = [
+ {key:"accountability",q:"An agent causes harm while acting within its approved authority. Who should be accountable?",
+  opts:["Whoever approved its authority","Whoever runs the process","The agent's vendor or developer","Shared","Other"]},
+ {key:"model_upgrade",q:"The agent's AI model is upgraded. What should happen to its authority?",
+  opts:["Keep it","Reduce it until it proves itself again","Reset it fully","Depends on the action"]},
+ {key:"approval_review",q:"When people approve many routine requests, how closely do they check each one?",
+  opts:["Most get approved without a close look","About half get a close look","Most get a close look"]}
+];
+
+function uid(){const a=new Uint8Array(6);crypto.getRandomValues(a);return "P-"+Array.from(a,b=>b.toString(16).padStart(2,"0")).join("")}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+const S = {pid:uid(), started:new Date().toISOString(), screen:"consent", consent:false,
+  order: Math.random()<0.5?["A","B"]:["B","A"], ci:0,
+  bg:{}, ans:{}, hard:{}, hardwhy:{}, closing:{}, secs:{}, missing:[], error:"", shownAt:0, sending:false, sent:false, sendFailed:false, fWant:false, fEmail:"", fStatus:"", fError:""};
+const app = document.getElementById("app");
+const ctx = id => CONTEXTS.find(c=>c.id===id);
+const agentOf = (c,name) => c.agents.find(a=>a.name===name);
+
+function optGroup(scope,key,opts,cur){
+  return `<div class="opts" role="group">${opts.map(o=>`<button type="button" class="opt" data-set="${scope}.${key}" data-val="${esc(o)}" aria-pressed="${cur===o}">${esc(o)}</button>`).join("")}</div>`;
+}
+function selectBox(b){
+  return `<select id="sel-${b.key}" data-bind="bg.${b.key}"><option value="">Select</option>${b.opts.map(o=>`<option ${S.bg[b.key]===o?"selected":""}>${esc(o)}</option>`).join("")}</select>`;
+}
+function banner(){
+  if(!CONFIG.ENDPOINT) return `<div class="banner">Preview. Responses are not saved.</div>`;
+  if(IS_TEST) return `<div class="banner">Test run. This response will be marked as a test.</div>`;
+  return "";
+}
+function nav(back,nextLabel,act){
+  return `<div class="nav">${back?`<button type="button" class="secondary" data-act="back">Back</button>`:""}<button type="button" class="primary" data-act="${act}" ${S.sending?"disabled":""}>${nextLabel}</button>${S.error?`<p class="error" role="alert">${esc(S.error)}</p>`:""}</div>`;
+}
+
+const screens = {
+ consent(){return `${banner()}<p class="org">${esc(CONFIG.AFFILIATION)}</p>
+  <h1>How much should an AI agent be allowed to do?</h1>
+  <p>You will see 16 actions by AI agents in two companies. For each one, choose how much authority the agent should have.</p>
+  <ul class="facts"><li>About 7 minutes.</li><li>Anonymous. We do not ask for your name or employer.</li><li>If you want the findings, you can leave an email at the end. It is stored separately from your answers.</li><li>Nothing is saved until you submit.</li><li>Used only for academic research.</li></ul>
+  <p class="muted">Questions: ${esc(CONFIG.CONTACT)}</p>
+  <label class="check"><input type="checkbox" id="consent" ${S.consent?"checked":""}><span>I am 18 or older and agree to take part.</span></label>
+  ${nav(false,"Start","toBg")}`},
+ bg(){return `${banner()}<h2>About you</h2>
+  ${BG.map(b=>`<h3>${b.select?`<label for="sel-${b.key}">${esc(b.q)}</label>`:esc(b.q)}</h3>${b.select?selectBox(b):optGroup("bg",b.key,b.opts,S.bg[b.key])}`).join("")}
+  ${nav(true,"Next","toIntro")}`},
+ intro(){return `${banner()}<h2>Four options</h2>
+  <div class="defs">${TIERS.map(t=>`<div><i style="--c:${t.c}"></i><span><b>${esc(t.label)}.</b> ${esc(t.desc)}</span></div>`).join("")}</div>
+  <p>Assume every action is logged and each agent has a named owner. Answer as you would for your own organization.</p>
+  ${nav(true,"Next","toCtx")}`},
+ ctx(){const c=ctx(S.order[S.ci]); const h=S.hard[c.id];
+  return `${banner()}<p class="part">${S.ci+1} of 2</p><h2>${esc(c.name)}</h2>
+  <p class="setting">${esc(c.setting)}</p>
+  <div class="team">${c.agents.map(a=>`<div class="agent ${a.isNew?"new":""}"><b>${esc(a.name)}</b><span>${esc(a.note)}</span></div>`).join("")}</div>
+  <div class="legend">${TIERS.map(t=>`<div style="--c:${t.c}"><b>${esc(t.label)}</b><span>${esc(t.desc)}</span></div>`).join("")}</div>
+  ${c.actions.map((a,i)=>`<div class="action ${S.missing.includes(a.id)?"missing":""}" id="row-${a.id}">
+    <div class="num">${i+1}</div>
+    <div><p class="who">${esc(a.agent)} (${esc(agentOf(c,a.agent).age)})</p><p class="what">${esc(a.text)}</p><p class="undo">${esc(a.undo)}</p></div>
+    <div class="seg" role="group" aria-label="Action ${i+1}">${TIERS.map(t=>`<button type="button" style="--c:${t.c}" data-set="ans.${a.id}" data-val="${t.v}" data-num="1" aria-pressed="${S.ans[a.id]===t.v}">${esc(t.label)}</button>`).join("")}</div>
+  </div>`).join("")}
+  <h3>Which was hardest to decide?</h3>
+  <div class="opts" role="group">${c.actions.map((a,i)=>`<button type="button" class="opt" data-set="hard.${c.id}" data-val="${a.id}" aria-pressed="${h===a.id}">${i+1}</button>`).join("")}<button type="button" class="opt" data-set="hard.${c.id}" data-val="none" aria-pressed="${h==="none"}">None</button></div>
+  ${h&&h!=="none"?`<label class="why" for="why-${c.id}">Why? One line is enough.</label><textarea id="why-${c.id}" data-bind="hardwhy.${c.id}">${esc(S.hardwhy[c.id])}</textarea>`:""}
+  ${nav(true,"Next","nextCtx")}`},
+ closing(){return `${banner()}<h2>Last three questions</h2>
+  ${CLOSING.map(c=>`<h3>${esc(c.q)}</h3>${optGroup("closing",c.key,c.opts,S.closing[c.key])}${c.key==="accountability"&&S.closing.accountability==="Other"?`<textarea data-bind="closing.accountability_other" aria-label="Who should be accountable">${esc(S.closing.accountability_other)}</textarea>`:""}`).join("")}
+  <h3>What would you need to see before giving an agent more authority? <span class="muted" style="font-weight:400">Optional</span></h3>
+  <textarea data-bind="closing.evidence" aria-label="What you would need to see">${esc(S.closing.evidence)}</textarea>
+  ${S.sendFailed?`<p class="error" role="alert">Not sent. Check your connection and press Submit again.</p>`:""}
+  ${nav(true,S.sending?"Submitting":"Submit","submit")}`},
+ done(){const preview=!CONFIG.ENDPOINT;
+  return `<h1>Thank you</h1><p>${preview?"Preview only. Nothing was saved.":"Your answers are submitted. You can close this page."}</p>
+  <p class="muted">Response code: ${esc(S.pid)}. Quote it if you want your answers removed later.</p>
+  <h3>Research findings</h3>
+  ${S.fStatus==="saved"?`<p class="ok" role="status">${preview?"Preview only. The email was not saved.":"Thanks. We will email you the findings when they are ready."}</p>`:
+   `<label class="check"><input type="checkbox" id="fwant" ${S.fWant?"checked":""}><span>Send me the findings</span></label>
+    ${S.fWant?`<label for="femail">Email</label><br><input type="email" id="femail" autocomplete="email" data-bind="f.email" value="${esc(S.fEmail)}">
+    <div class="nav" style="margin-top:0"><button type="button" class="primary" data-act="findings" ${S.fStatus==="sending"?"disabled":""}>${S.fStatus==="sending"?"Sending":"Send"}</button>${S.fError?`<p class="error" role="alert">${esc(S.fError)}</p>`:""}</div>
+    <p class="muted">Your email is stored apart from your answers and used only to send the findings.</p>`:""}`}
+  ${preview?`<h3>Data that would be sent</h3><textarea class="json" readonly>${esc(JSON.stringify(payload(),null,2))}</textarea>`:""}`}
+};
+
+function payload(){
+  const cases=[];
+  S.order.forEach((cid,cp)=>{const c=ctx(cid);c.actions.forEach((a,i)=>{const t=TIERS.find(t=>t.v===S.ans[a.id]);
+    cases.push({vignette_id:a.id, context:cid, context_position:cp+1, position:i+1, agent:a.agent, reversible:a.rev, impact:a.imp, novelty:a.nov, track_record:a.rec,
+      tier:S.ans[a.id]??null, tier_label:t?t.label:"", hardest:S.hard[cid]===a.id, hardest_why:S.hard[cid]===a.id?(S.hardwhy[cid]||""):"", context_seconds:S.secs[cid]||0})})});
+  return {participant_id:S.pid, is_test:IS_TEST, started_at:S.started, submitted_at:new Date().toISOString(), context_order:S.order.join(""),
+    background:S.bg, hardest:S.hard, hardest_why:S.hardwhy, cases, closing:S.closing};
+}
+
+function render(focusKey){
+  app.innerHTML = screens[S.screen]();
+  if(focusKey){const el=app.querySelector(`[data-set="${focusKey.set}"][data-val="${CSS.escape(focusKey.val)}"]`); if(el) el.focus({preventScroll:true});}
+}
+function go(screen){S.error="";S.missing=[];S.screen=screen;S.shownAt=Date.now();render();window.scrollTo(0,0);const h=app.querySelector("h1,h2");if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true})}}
+function logTime(){if(S.screen!=="ctx")return;const id=S.order[S.ci];S.secs[id]=(S.secs[id]||0)+Math.round((Date.now()-S.shownAt)/1000);}
+
+async function submit(){
+  if(CLOSING.some(c=>!S.closing[c.key])){S.error="Answer the three questions to submit.";render();return}
+  if(!CONFIG.ENDPOINT){S.sent=true;go("done");return}
+  S.sending=true;S.sendFailed=false;S.error="";render();
+  try{
+    await fetch(CONFIG.ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload())});
+    S.sent=true;S.sending=false;go("done");
+  }catch(e){S.sending=false;S.sendFailed=true;render()}
+}
+
+async function sendFindings(){
+  const email=S.fEmail.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){S.fError="Enter a valid email address.";render();return}
+  S.fError="";
+  if(!CONFIG.ENDPOINT){S.fStatus="saved";render();return}
+  S.fStatus="sending";render();
+  try{
+    await fetch(CONFIG.ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({type:"findings",email,is_test:IS_TEST})});
+    S.fStatus="saved";
+  }catch(e){S.fStatus="";S.fError="Not sent. Check your connection and try again."}
+  render();
+}
+
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-set]");
+  if(s){const [scope,key]=s.dataset.set.split(".");S[scope][key]=s.dataset.num?Number(s.dataset.val):s.dataset.val;
+    S.missing=S.missing.filter(m=>m!==key);S.error="";render({set:s.dataset.set,val:s.dataset.val});
+    if(scope==="hard"&&s.dataset.val!=="none"){const w=document.getElementById("why-"+key);if(w)w.focus()}
+    return}
+  const b=e.target.closest("[data-act]"); if(!b)return;
+  const act=b.dataset.act;
+  if(act==="toBg"){S.consent=document.getElementById("consent").checked;if(!S.consent){S.error="Tick the box to start.";render();return}go("bg")}
+  else if(act==="toIntro"){if(BG.some(q=>!S.bg[q.key])){S.error=`Answer all ${BG.length} to continue.`;render();return}go("intro")}
+  else if(act==="toCtx"){S.ci=0;go("ctx")}
+  else if(act==="nextCtx"){const c=ctx(S.order[S.ci]);S.missing=c.actions.filter(a=>!S.ans[a.id]).map(a=>a.id);
+    if(S.missing.length){const nums=c.actions.map((a,i)=>S.missing.includes(a.id)?i+1:null).filter(Boolean);
+      S.error=`Choose an option for ${nums.length>1?"actions":"action"} ${nums.join(", ")}.`;render();document.getElementById("row-"+S.missing[0]).scrollIntoView({behavior:"smooth",block:"center"});return}
+    if(!S.hard[c.id]){S.error="Pick the hardest action, or None.";render();return}
+    logTime();if(S.ci===0){S.ci=1;go("ctx")}else go("closing")}
+  else if(act==="submit"){submit()}
+  else if(act==="findings"){sendFindings()}
+  else if(act==="back"){logTime();
+    if(S.screen==="bg")go("consent");else if(S.screen==="intro")go("bg");
+    else if(S.screen==="ctx"){if(S.ci>0){S.ci=0;go("ctx")}else go("intro")}
+    else if(S.screen==="closing"){S.ci=1;go("ctx")}}
+});
+document.addEventListener("input",e=>{const b=e.target.dataset.bind;if(!b)return;const [scope,key]=b.split(".");
+  if(scope==="f"){S.fEmail=e.target.value;return}
+  S[scope][key]=e.target.value; if(e.target.tagName==="SELECT"&&S.error){S.error="";render()}});
+document.addEventListener("change",e=>{if(e.target.id==="consent"){S.consent=e.target.checked;S.error=""}
+  if(e.target.id==="fwant"){S.fWant=e.target.checked;S.fError="";render();if(S.fWant){const f=document.getElementById("femail");if(f)f.focus()}}});
+window.addEventListener("beforeunload",e=>{if(S.screen!=="consent"&&!S.sent){e.preventDefault();e.returnValue=""}});
+render();
+</script>
+</body>
+</html>
