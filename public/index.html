@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>How much should an AI agent be allowed to do?</title>
+<title>Research on Delegation of Authority to AI Agents</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -179,11 +179,11 @@ function nav(back,nextLabel,act){
 }
 
 const screens = {
- consent(){return `${banner()}<p class="org">${esc(CONFIG.AFFILIATION)}</p>
-  <h1>How much should an AI agent be allowed to do?</h1>
+ consent(){return `${banner()}<p class="org">${esc(CONFIG.AFFILIATION)}<br>${esc(CONFIG.CONTACT)}</p>
+  <h1>Research on Delegation of Authority to AI Agents</h1>
+  <p>AI agents now act for organizations: paying invoices, changing records, refunding customers. This study asks where practitioners draw the line between what an agent may do on its own and what needs a person. Your answers will help organizations delegate authority to AI agents safely.</p>
   <p>You will see 16 actions by AI agents in two companies. For each one, choose how much authority the agent should have.</p>
   <ul class="facts"><li>About 7 minutes.</li><li>Anonymous. We do not ask for your name or employer.</li><li>If you want the findings, you can leave an email at the end. It is stored separately from your answers.</li><li>Nothing is saved until you submit.</li><li>Used only for academic research.</li></ul>
-  <p class="muted">Questions: ${esc(CONFIG.CONTACT)}</p>
   <label class="check"><input type="checkbox" id="consent" ${S.consent?"checked":""}><span>I am 18 or older and agree to take part.</span></label>
   ${nav(false,"Start","toBg")}`},
  bg(){return `${banner()}<h2>About you</h2>
