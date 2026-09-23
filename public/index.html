@@ -138,9 +138,9 @@ const CONTEXTS = [
 
 const BG = [
  {key:"role",q:"Your role",opts:["Senior leadership","Middle management","IT or engineering","Risk, audit, compliance or legal","Consultant","Academic","Other"]},
- {key:"experience",q:"Years of work experience",opts:["Under 5","5 to 10","11 to 20","Over 20"]},
+ {key:"experience",q:"Years of work experience",opts:["Under 1","1 to 5","6 to 10","11 to 20","Over 20"]},
  {key:"industry",q:"Industry",select:true,opts:["IT services and consulting","Software and SaaS","Banking and financial services","Insurance","Manufacturing","Automotive","Healthcare and pharma","Retail and e-commerce","Telecom","Energy and utilities","Logistics and transport","Government and public sector","Education","Media and entertainment","Other"]},
- {key:"involvement",q:"Have you been involved in decisions to adopt or govern IT or AI systems at work?",opts:["Yes, as a decision maker","Yes, as an advisor or contributor","No"]},
+ {key:"involvement",q:"Have you been involved in decisions to adopt or govern IT or AI systems at work?",opts:["Yes, as a decision maker","Yes, as an advisor or contributor","No","Other"],other:true},
  {key:"agent_experience",q:"AI agents at your work",opts:["None","Tried or piloted","In production","I build or sell them"]}
 ];
 
@@ -187,7 +187,7 @@ const screens = {
   <label class="check"><input type="checkbox" id="consent" ${S.consent?"checked":""}><span>I am 18 or older and agree to take part.</span></label>
   ${nav(false,"Start","toBg")}`},
  bg(){return `${banner()}<h2>About you</h2>
-  ${BG.map(b=>`<h3>${b.select?`<label for="sel-${b.key}">${esc(b.q)}</label>`:esc(b.q)}</h3>${b.select?selectBox(b):optGroup("bg",b.key,b.opts,S.bg[b.key])}`).join("")}
+  ${BG.map(b=>`<h3>${b.select?`<label for="sel-${b.key}">${esc(b.q)}</label>`:esc(b.q)}</h3>${b.select?selectBox(b):optGroup("bg",b.key,b.opts,S.bg[b.key])}${b.other&&S.bg[b.key]==="Other"?`<textarea id="other-${b.key}" maxlength="100" data-bind="bg.${b.key}_other" aria-label="Describe your involvement">${esc(S.bg[b.key+"_other"])}</textarea>`:""}`).join("")}
   ${nav(true,"Next","toIntro")}`},
  intro(){return `${banner()}<h2>Four options</h2>
   <div class="defs">${TIERS.map(t=>`<div><i style="--c:${t.c}"></i><span><b>${esc(t.label)}.</b> ${esc(t.desc)}</span></div>`).join("")}</div>
@@ -231,7 +231,7 @@ function payload(){
     cases.push({vignette_id:a.id, context:cid, context_position:cp+1, position:i+1, agent:a.agent, reversible:a.rev, impact:a.imp, novelty:a.nov, track_record:a.rec,
       tier:S.ans[a.id]??null, tier_label:t?t.label:"", hardest:S.hard[cid]===a.id, hardest_why:S.hard[cid]===a.id?(S.hardwhy[cid]||""):"", context_seconds:S.secs[cid]||0})})});
   return {participant_id:S.pid, is_test:IS_TEST, started_at:S.started, submitted_at:new Date().toISOString(), context_order:S.order.join(""),
-    background:S.bg, hardest:S.hard, hardest_why:S.hardwhy, cases, closing:S.closing};
+    background:Object.assign({},S.bg,{involvement_other:S.bg.involvement==="Other"?(S.bg.involvement_other||"").slice(0,100):""}), hardest:S.hard, hardest_why:S.hardwhy, cases, closing:S.closing};
 }
 
 function render(focusKey){
@@ -269,6 +269,7 @@ document.addEventListener("click",e=>{
   if(s){const [scope,key]=s.dataset.set.split(".");S[scope][key]=s.dataset.num?Number(s.dataset.val):s.dataset.val;
     S.missing=S.missing.filter(m=>m!==key);S.error="";render({set:s.dataset.set,val:s.dataset.val});
     if(scope==="hard"&&s.dataset.val!=="none"){const w=document.getElementById("why-"+key);if(w)w.focus()}
+    if(scope==="bg"&&s.dataset.val==="Other"){const w=document.getElementById("other-"+key);if(w)w.focus()}
     return}
   const b=e.target.closest("[data-act]"); if(!b)return;
   const act=b.dataset.act;

@@ -9,7 +9,7 @@ const COLS = ['received_at','participant_id','is_test','started_at','submitted_a
   'vignette_id','context','context_position','position','agent',
   'reversible','impact','novelty','track_record','tier','tier_label',
   'hardest','hardest_why','context_seconds',
-  'accountability','accountability_other','model_upgrade','approval_review','evidence'];
+  'accountability','accountability_other','model_upgrade','approval_review','evidence','involvement_other'];
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -37,7 +37,8 @@ function doPost(e) {
       x.reversible, x.impact, x.novelty, x.track_record, x.tier, x.tier_label,
       x.hardest, x.hardest_why, x.context_seconds,
       c.accountability || '', c.accountability_other || '', c.model_upgrade || '',
-      c.approval_review || '', c.evidence || '']);
+      c.approval_review || '', c.evidence || '',
+      String(b.involvement_other || '').slice(0, 100)]);
     if (rows.length) {
       const sh = sheet_(ss, 'responses', COLS);
       sh.getRange(sh.getLastRow() + 1, 1, rows.length, COLS.length).setValues(rows);
