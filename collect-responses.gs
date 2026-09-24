@@ -1,6 +1,9 @@
 // Paste this into Extensions > Apps Script of a new Google Sheet.
 // Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.
 // Copy the web app URL into CONFIG.ENDPOINT in public/index.html.
+// To update: paste the new code, then Deploy > Manage deployments > Edit >
+// Version: New version > Deploy. This keeps the same URL. If COLS gains a column,
+// add its name to the header row of an existing "responses" sheet by hand.
 // Answers go to "responses" and "raw". Emails for findings go to "findings_requests",
 // with no participant ID, so emails cannot be matched to answers through the data.
 
